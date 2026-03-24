@@ -1,6 +1,7 @@
 package com.hirehub.backend.controller;
 
 import com.hirehub.backend.dto.RegisterRequest;
+import com.hirehub.backend.dto.LoginRequest;
 import com.hirehub.backend.entity.User;
 import com.hirehub.backend.service.UserService;
 import jakarta.validation.Valid;
@@ -19,5 +20,10 @@ public class AuthController {
     @PostMapping("/register")
     public User register(@Valid @RequestBody RegisterRequest request) {
         return userService.registerUser(request);
+    }
+
+    @PostMapping("/login")
+    public String login(@RequestBody LoginRequest request) {
+        return userService.loginUser(request);
     }
 }

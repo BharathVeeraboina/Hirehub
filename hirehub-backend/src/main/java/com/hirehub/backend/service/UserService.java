@@ -1,7 +1,9 @@
 package com.hirehub.backend.service;
 
-import com.hirehub.backend.dto.RegisterRequest;
+import com.hirehub.backend.config.JwtUtil;
 import com.hirehub.backend.entity.User;
+import com.hirehub.backend.dto.RegisterRequest;
+import com.hirehub.backend.dto.LoginRequest;
 import com.hirehub.backend.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,10 +16,14 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
+    private final JwtUtil jwtUtil;
+
     public UserService(UserRepository userRepository,
-                       BCryptPasswordEncoder passwordEncoder) {
+                       BCryptPasswordEncoder passwordEncoder,
+                       JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     public User registerUser(RegisterRequest request) {
@@ -39,5 +45,17 @@ public class UserService {
                 .build();
 
         return userRepository.save(user);
+    }
+
+    public String loginUser(LoginRequest request) {
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Invalid password");
+        }
+
+        return jwtUtil.generateToken(user.getEmail());
     }
 }
