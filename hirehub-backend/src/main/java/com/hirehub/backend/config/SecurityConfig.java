@@ -7,14 +7,18 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import com.hirehub.backend.service.CustomUserDetailsService;
 
 @Configuration
 public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService userDetailsService;
 
-    public SecurityConfig(JwtUtil jwtUtil) {
+    public SecurityConfig(JwtUtil jwtUtil,
+                          CustomUserDetailsService userDetailsService) {
         this.jwtUtil = jwtUtil;
+        this.userDetailsService = userDetailsService;
     }
 
     @Bean
@@ -30,11 +34,18 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+
+                        // USER access
+                        .requestMatchers("/api/users/**").hasRole("USER")
+
+                        // ADMIN access
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
                         .anyRequest().authenticated()
                 )
 
                 // ADD JWT FILTER
-                .addFilterBefore(new JwtFilter(jwtUtil),
+                .addFilterBefore(new JwtFilter(jwtUtil, userDetailsService),
                         UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

@@ -5,7 +5,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import java.util.List;
+import com.hirehub.backend.service.CustomUserDetailsService;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -14,8 +18,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
 
-    public JwtFilter(JwtUtil jwtUtil) {
+    private final CustomUserDetailsService userDetailsService;
+
+    public JwtFilter(JwtUtil jwtUtil,
+                     CustomUserDetailsService userDetailsService) {
         this.jwtUtil = jwtUtil;
+        this.userDetailsService = userDetailsService;
     }
 
 
@@ -37,14 +45,18 @@ public class JwtFilter extends OncePerRequestFilter {
                 if (email != null) {
 
                     // ✅ CREATE AUTHENTICATION OBJECT
+                    List<SimpleGrantedAuthority> authorities =
+                            List.of(new SimpleGrantedAuthority("ROLE_USER"));
+
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(
-                                    email,
+                                    userDetails,
                                     null,
-                                    Collections.emptyList()
+                                    userDetails.getAuthorities()
                             );
 
-                    // ✅ SET INTO SECURITY CONTEXT
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
 
