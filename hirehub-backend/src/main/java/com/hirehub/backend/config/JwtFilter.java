@@ -45,10 +45,11 @@ public class JwtFilter extends OncePerRequestFilter {
                 if (email != null) {
 
                     // ✅ CREATE AUTHENTICATION OBJECT
-                    List<SimpleGrantedAuthority> authorities =
-                            List.of(new SimpleGrantedAuthority("ROLE_USER"));
+//                    List<SimpleGrantedAuthority> authorities =
+//                            List.of(new SimpleGrantedAuthority("ROLE_USER"));
 
                     UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                    System.out.println("Authorities: " + userDetails.getAuthorities());
 
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(
@@ -62,6 +63,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
             } catch (Exception e) {
                 System.out.println("Invalid JWT");
+                e.printStackTrace();
             }
         }
 

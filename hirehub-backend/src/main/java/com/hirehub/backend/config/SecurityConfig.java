@@ -8,8 +8,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import com.hirehub.backend.service.CustomUserDetailsService;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
@@ -35,11 +37,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        // USER access
                         .requestMatchers("/api/users/**").hasRole("USER")
 
-                        // ADMIN access
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+                        // ✅ ADD THIS LINE
+                        .requestMatchers("/api/jobs/**").hasRole("RECRUITER")
 
                         .anyRequest().authenticated()
                 )
