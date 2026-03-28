@@ -18,6 +18,10 @@ public class Job {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "recruiter_id")
+    private User recruiter;
+
     private String title;
 
     @Column(length = 1000)

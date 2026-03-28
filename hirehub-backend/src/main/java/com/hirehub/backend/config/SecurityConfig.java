@@ -35,15 +35,19 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
+                        // PUBLIC
                         .requestMatchers("/api/auth/**").permitAll()
 
+                        // JOBS → any logged-in user
+                        .requestMatchers("/api/jobs/**").authenticated()
+
+                        // USER APIs
                         .requestMatchers("/api/users/**").hasRole("USER")
 
+                        // ADMIN APIs
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                        // ✅ ADD THIS LINE
-                        .requestMatchers("/api/jobs/**").hasRole("RECRUITER")
-
+                        // EVERYTHING ELSE
                         .anyRequest().authenticated()
                 )
 

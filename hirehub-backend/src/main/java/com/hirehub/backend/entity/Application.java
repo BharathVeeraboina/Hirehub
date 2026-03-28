@@ -28,6 +28,7 @@ public class Application {
     @JoinColumn(name = "job_id")
     private Job job;
 
+    private String resumePath;
     private String status;
 
     private LocalDateTime appliedAt;

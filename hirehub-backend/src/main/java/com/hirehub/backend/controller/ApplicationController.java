@@ -6,6 +6,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import org.springframework.web.multipart.MultipartFile;
+import java.nio.file.*;
 import java.util.List;
 
 @RestController
@@ -38,11 +40,37 @@ public class ApplicationController {
         return applicationService.getMyApplications(email);
     }
 
-
     @PutMapping("/{id}/status")
     @PreAuthorize("hasRole('RECRUITER')")
     public Application updateStatus(@PathVariable Long id,
-                                    @RequestParam String status) {
-        return applicationService.updateStatus(id, status);
+                                    @RequestParam String status,
+                                    Authentication authentication) {
+
+        String email = authentication.getName();
+
+        return applicationService.updateStatus(id, status, email);
+    }
+
+
+    @GetMapping("/job/{jobId}")
+    @PreAuthorize("hasRole('RECRUITER')")
+    public List<Application> getApplications(@PathVariable Long jobId,
+                                             Authentication authentication) {
+
+        String email = authentication.getName();
+
+        return applicationService.getApplicationsForJob(jobId, email);
+    }
+
+
+    @PostMapping("/{jobId}/apply-with-resume")
+    @PreAuthorize("hasRole('USER')")
+    public Application applyWithResume(@PathVariable Long jobId,
+                                       @RequestParam("file") MultipartFile file,
+                                       Authentication authentication) {
+
+        String email = authentication.getName();
+
+        return applicationService.applyJobWithResume(jobId, email, file);
     }
 }

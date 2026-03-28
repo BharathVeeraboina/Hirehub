@@ -1,8 +1,12 @@
 package com.hirehub.backend.service;
 
 import com.hirehub.backend.entity.Job;
+import com.hirehub.backend.entity.User;
 import com.hirehub.backend.repository.JobRepository;
+import com.hirehub.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
+
+import org.springframework.data.domain.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,12 +16,21 @@ public class JobService {
 
     private final JobRepository jobRepository;
 
-    public JobService(JobRepository jobRepository) {
+    private final UserRepository userRepository;
+
+    public JobService(JobRepository jobRepository,UserRepository userRepository) {
+        this.userRepository=userRepository;
         this.jobRepository = jobRepository;
     }
 
-    public Job createJob(Job job) {
+    public Job createJob(Job job, String email) {
+
+        User recruiter = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        job.setRecruiter(recruiter);
         job.setCreatedAt(LocalDateTime.now());
+
         return jobRepository.save(job);
     }
 
@@ -46,5 +59,19 @@ public class JobService {
                 .orElseThrow(() -> new RuntimeException("Job not found"));
 
         jobRepository.delete(job);
+    }
+
+    public Page<Job> getJobs(int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        return jobRepository.findAll(pageable);
+    }
+
+    public Page<Job> searchJobs(String keyword, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return jobRepository.findByTitleContainingIgnoreCase(keyword, pageable);
     }
 }
