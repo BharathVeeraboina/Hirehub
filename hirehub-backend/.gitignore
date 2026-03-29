@@ -31,6 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
-
+hirehub-backend/uploads
 
 hirehub-backend/uploads/git rebase --continue
