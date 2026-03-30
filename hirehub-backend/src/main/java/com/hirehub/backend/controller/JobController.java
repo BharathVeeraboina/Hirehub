@@ -64,4 +64,13 @@ public class JobController {
         return jobService.searchJobs(keyword, page, size);
     }
 
+    @GetMapping("/my")
+    @PreAuthorize("hasRole('RECRUITER')")
+    public List<Job> getMyJobs(Authentication authentication) {
+
+        String email = authentication.getName();
+
+        return jobService.getMyJobs(email);
+    }
+
 }

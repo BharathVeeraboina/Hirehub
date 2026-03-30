@@ -74,4 +74,12 @@ public class JobService {
 
         return jobRepository.findByTitleContainingIgnoreCase(keyword, pageable);
     }
+
+    public List<Job> getMyJobs(String email) {
+
+        User recruiter = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return jobRepository.findByRecruiter(recruiter);
+    }
 }
