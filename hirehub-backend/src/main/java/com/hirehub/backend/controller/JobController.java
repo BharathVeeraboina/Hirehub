@@ -1,5 +1,6 @@
 package com.hirehub.backend.controller;
 
+import com.hirehub.backend.dto.JobResponse;
 import com.hirehub.backend.entity.Job;
 import com.hirehub.backend.service.JobService;
 import org.springframework.web.bind.annotation.*;
@@ -66,7 +67,7 @@ public class JobController {
 
     @GetMapping("/my")
     @PreAuthorize("hasRole('RECRUITER')")
-    public List<Job> getMyJobs(Authentication authentication) {
+    public List<JobResponse> getMyJobs(Authentication authentication) {
 
         String email = authentication.getName();
 

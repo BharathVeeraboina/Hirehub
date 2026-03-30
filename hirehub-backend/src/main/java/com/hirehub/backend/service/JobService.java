@@ -1,9 +1,11 @@
 package com.hirehub.backend.service;
 
+import com.hirehub.backend.dto.JobResponse;
 import com.hirehub.backend.entity.Job;
 import com.hirehub.backend.entity.User;
 import com.hirehub.backend.repository.JobRepository;
 import com.hirehub.backend.repository.UserRepository;
+import com.hirehub.backend.repository.ApplicationRepository;
 import org.springframework.stereotype.Service;
 
 import org.springframework.data.domain.*;
@@ -17,10 +19,11 @@ public class JobService {
     private final JobRepository jobRepository;
 
     private final UserRepository userRepository;
-
-    public JobService(JobRepository jobRepository,UserRepository userRepository) {
+    private final ApplicationRepository applicationRepository;
+    public JobService(JobRepository jobRepository,UserRepository userRepository,ApplicationRepository applicationRepository) {
         this.userRepository=userRepository;
         this.jobRepository = jobRepository;
+        this.applicationRepository=applicationRepository;
     }
 
     public Job createJob(Job job, String email) {
@@ -75,11 +78,24 @@ public class JobService {
         return jobRepository.findByTitleContainingIgnoreCase(keyword, pageable);
     }
 
-    public List<Job> getMyJobs(String email) {
+    public List<JobResponse> getMyJobs(String email) {
 
         User recruiter = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return jobRepository.findByRecruiter(recruiter);
+        List<Job> jobs = jobRepository.findByRecruiter(recruiter);
+
+        return jobs.stream().map(job -> {
+
+            long count = applicationRepository.countByJob(job);
+
+            return JobResponse.builder()
+                    .id(job.getId())
+                    .title(job.getTitle())
+                    .company(job.getCompany())
+                    .applicationsCount((int) count)
+                    .build();
+
+        }).toList();
     }
 }
