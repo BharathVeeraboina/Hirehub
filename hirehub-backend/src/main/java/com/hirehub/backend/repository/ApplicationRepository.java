@@ -12,4 +12,5 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     List<Application> findByUser(User user);
     List<Application> findByJob(Job job);
     long countByJob(Job job);
+    List<Application> findByJobRecruiter(User recruiter);
 }

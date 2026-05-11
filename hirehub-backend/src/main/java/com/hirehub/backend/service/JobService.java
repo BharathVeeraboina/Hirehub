@@ -98,4 +98,15 @@ public class JobService {
 
         }).toList();
     }
+
+    public Page<Job> filterJobs(String keyword,
+                                String location,
+                                Integer minSalary,
+                                int page,
+                                int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return jobRepository.filterJobs(keyword, location, minSalary, pageable);
+    }
 }

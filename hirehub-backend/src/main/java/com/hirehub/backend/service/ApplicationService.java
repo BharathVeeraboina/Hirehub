@@ -62,11 +62,45 @@ public class ApplicationService {
                 .orElseThrow(() -> new RuntimeException("Application not found"));
 
         // ✅ SECURITY CHECK
+        if (!application.getJob().getRecruiter().getEmail().equals(email) && !application.getUser().getEmail().equals(email)) {
+            throw new RuntimeException("Not allowed");
+        }
+
+        // ✅ STATE MACHINE LOCKS
+        String currentStatus = application.getStatus();
+        if ("REJECTED".equals(currentStatus) || "OFFER_REJECTED".equals(currentStatus)) {
+            throw new RuntimeException("Application is already rejected and locked.");
+        }
+        
+        if ("OFFERED".equals(status) && !"INTERVIEW_SCHEDULED".equals(currentStatus)) {
+            throw new RuntimeException("Can only offer if interview is scheduled.");
+        }
+
+        application.setStatus(status);
+
+        return applicationRepository.save(application);
+    }
+
+    public List<Application> getRecruiterApplications(String email) {
+        User recruiter = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return applicationRepository.findByJobRecruiter(recruiter);
+    }
+
+    public Application scheduleInterview(Long applicationId, com.hirehub.backend.dto.ScheduleInterviewRequest request, String email) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Application not found"));
+
         if (!application.getJob().getRecruiter().getEmail().equals(email)) {
             throw new RuntimeException("Not allowed");
         }
 
-        application.setStatus(status);
+        application.setStatus("INTERVIEW_SCHEDULED");
+        application.setInterviewDate(request.getInterviewDate());
+        application.setInterviewTime(request.getInterviewTime());
+        application.setInterviewLocation(request.getInterviewLocation());
+
+        System.out.println("✅ Dummy Email Sent to " + application.getUser().getEmail() + " about interview on " + request.getInterviewDate());
 
         return applicationRepository.save(application);
     }
@@ -110,7 +144,7 @@ public class ApplicationService {
                     .user(user)
                     .job(job)
                     .status("APPLIED")
-                    .resumePath(path.toString()) // ✅ save path
+                    .resumePath(path.toString().replace("\\", "/")) // ✅ save path with forward slashes
                     .appliedAt(LocalDateTime.now())
                     .build();
 

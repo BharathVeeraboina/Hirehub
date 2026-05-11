@@ -31,5 +31,9 @@ public class Application {
     private String resumePath;
     private String status;
 
+    private String interviewDate;
+    private String interviewTime;
+    private String interviewLocation;
+
     private LocalDateTime appliedAt;
 }

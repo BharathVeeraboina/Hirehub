@@ -74,4 +74,14 @@ public class JobController {
         return jobService.getMyJobs(email);
     }
 
+    @GetMapping("/filter")
+    public Page<Job> filterJobs(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) Integer minSalary,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+
+        return jobService.filterJobs(keyword, location, minSalary, page, size);
+    }
 }

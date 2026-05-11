@@ -32,4 +32,15 @@ public class User {
 
     private String phone;
 
+    private String title;
+
+    @Column(length = 1000)
+    private String bio;
+
+    private String skills;
+
+    private String location;
+
+    private String portfolioUrl;
+
 }

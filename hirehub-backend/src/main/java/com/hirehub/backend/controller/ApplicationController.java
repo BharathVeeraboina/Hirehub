@@ -51,6 +51,15 @@ public class ApplicationController {
         return applicationService.updateStatus(id, status, email);
     }
 
+    @PutMapping("/{id}/schedule")
+    @PreAuthorize("hasRole('RECRUITER')")
+    public Application scheduleInterview(@PathVariable Long id,
+                                         @RequestBody com.hirehub.backend.dto.ScheduleInterviewRequest request,
+                                         Authentication authentication) {
+        String email = authentication.getName();
+        return applicationService.scheduleInterview(id, request, email);
+    }
+
 
     @GetMapping("/job/{jobId}")
     @PreAuthorize("hasRole('RECRUITER')")
@@ -60,6 +69,13 @@ public class ApplicationController {
         String email = authentication.getName();
 
         return applicationService.getApplicationsForJob(jobId, email);
+    }
+
+    @GetMapping("/recruiter/all")
+    @PreAuthorize("hasRole('RECRUITER')")
+    public List<Application> getAllRecruiterApplications(Authentication authentication) {
+        String email = authentication.getName();
+        return applicationService.getRecruiterApplications(email);
     }
 
 
